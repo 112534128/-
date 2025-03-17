@@ -1,9 +1,6 @@
-<?php
-session_start();
-?>
-
 <!DOCTYPE html>
 <html lang="zh-TW">
+    <?php include "db.php"; ?>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,6 +106,14 @@ session_start();
     .dropdown-menu a:hover {
         background: #f0f0f0;
     }
+    .post-image {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto; 
+    display: block;
+    margin-top: 10px;
+}
 </style>
 </head>
 <body>
@@ -134,15 +139,21 @@ document.addEventListener("click", function(event) {
         <td class="t1" colspan="2">
             <header class="header">
                 <div class="header-left">
-                    <h1>問答論壇</h1>
+                    <div onclick="location"><h1>問答論壇</h1></div>
                     <button class="nav-button" onclick="location.href='category.php'">分類</button>
                     <button class="nav-button" onclick="location.href='ranking.php'">排行榜</button>
                     <button class="nav-button" onclick="location.href='vote.php'">投票</button>
-                    <button class="nav-button" onclick="location.href='new_proposal.php'">新增提案</button>
+                    <?php
+                    if (isset($_SESSION['acc']) && !empty($_SESSION['acc'])) {
+                        echo "<button class='nav-button' onclick=\"location.href='new_proposal.php'\">新增提案</button>";
+                    } else {
+                        echo "<button class='nav-button' onclick=\"alert('請先登入')\">新增提案</button>";
+                    }
+                    ?>
                 </div>
 
                 <form class="search-form">
-                    <input type="text" placeholder="搜尋">
+                <input type="text" name="keyword" placeholder="搜尋" value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
                     <button type="submit">搜尋</button>
                 </form>
 
@@ -161,13 +172,44 @@ document.addEventListener("click", function(event) {
                         <div id="dropdownMenu" class="dropdown-menu">
                             <a href="upload_avatar.php">更換頭像</a>
                             <a href="profile.php">查看個人資料</a>
+                            <a href="collect.php">收藏的貼文</a>
                             <a href="logout.php">登出</a>
-                        </div>
+                            </div>
                     </div>
                 <?php else: ?>
                     <button class="login" onclick="location.href='login.php'">登入</button>
                 <?php endif; ?>
             </header>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:100%" style="height:100%">
+        <?php
+    $sql="SELECT * FROM `msg` WHERE 1";
+    $res=mysqli_query($link,$sql);
+    if(mysqli_num_rows($res)>0){
+        while($row=mysqli_fetch_assoc($res)){
+        echo "<table  border='1' style='width:700px;' align='center'>";
+        echo "<tr style='50px'>";
+        echo "<td style='width: 500px;'>title: " . $row['title'] . "</td>";
+        echo "<td style='200px;'>發布者:".$row['acc']."</td>";
+        echo "</tr>";
+        echo "<tr style='height:300px;'>";
+        echo "<td colspan='2'>text: ".$row['text']."<br><img src='".$row['img']."' width='200' height='200'></td>";  
+        echo "</tr>";
+        echo "<tr style='height:50px'>";
+        echo "<td style='width:500px'>發布時間:".$row['addtime']."更新時間:".$row['uptime']."</td>";
+        if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
+            echo "<td style='width:200px'><input type='button' value='刪除' onclick=\"location.href='dele.php?id=".$row['id']."'\" ></td>";
+        } else {
+            echo "<td></td>";
+        } 
+        echo "</tr>";
+        echo "</table>";
+        }
+    }
+    ?>
+    </form>
         </td>
     </tr>
 </table>
