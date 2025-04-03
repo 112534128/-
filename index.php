@@ -74,7 +74,7 @@
     .aaa {
         display: flex;
         align-items: center;
-        gap: 10px; /* 設定間距 */
+        gap: 10px;
         position: relative;
     }
     .avatar {
@@ -107,13 +107,127 @@
         background: #f0f0f0;
     }
     .post-image {
-    max-width: 200px;
-    max-height: 200px;
-    width: auto;
-    height: auto; 
-    display: block;
-    margin-top: 10px;
+        max-width: 200px;
+        max-height: 200px;
+        width: auto;
+        height: auto; 
+        display: block;
+        margin-top: 10px;
+    }
+    body {
+        background-color: #121212;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+    .post-card {
+        background-color: #1e1e1e;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 700px;
+        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .post-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.2);
+    }
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+    }
+    .post-header h2 {
+        font-size: 20px;
+        margin: 0;
+        color: #bb86fc;
+    }
+    .post-author {
+        font-size: 14px;
+        color: #a0a0a0;
+    }
+    .post-content {
+        padding: 15px 0;
+    }
+    .post-content p {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    .post-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-top: 10px;
+        box-shadow: 0px 2px 8px rgba(255, 255, 255, 0.1);
+    }
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        border-top: 1px solid #333;
+        padding-top: 10px;
+        color: #a0a0a0;
+        gap: 10px;
+    }
+    .delete-btn {
+        background-color: #ff5555;
+        border: none;
+        padding: 8px 12px;
+        color: white;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .delete-btn:hover {
+        background-color: #ff3333;
+    }
+    .announcement-section {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 10px;
 }
+
+.announcement-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #ffcc00;
+    border-bottom: 2px solid #ffcc00;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.announcement-card {
+    background-color: #2a2a2a;
+    border-left: 5px solid #ffcc00;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0px 4px 10px rgba(255, 255, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.announcement-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 15px rgba(255, 255, 0, 0.5);
+}
+
+.announcement-card h2 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.announcement-card .post-content p {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
 </style>
 </head>
 <body>
@@ -123,7 +237,6 @@ function toggleDropdown() {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
-// 點擊其他地方關閉選單
 document.addEventListener("click", function(event) {
     var avatar = document.getElementById("avatar");
     var menu = document.getElementById("dropdownMenu");
@@ -133,7 +246,6 @@ document.addEventListener("click", function(event) {
     }
 });
 </script>
-
 <table>
     <tr>
         <td class="t1" colspan="2">
@@ -151,17 +263,45 @@ document.addEventListener("click", function(event) {
                     }
                     ?>
                 </div>
-
-                <form class="search-form">
-                <input type="text" name="keyword" placeholder="搜尋" value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
+                <form class="search-form" method="get">
+                    <input type="text" name="keyword" placeholder="搜尋" value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
                     <button type="submit">搜尋</button>
                 </form>
-
+                <?php if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
+                    $keyword = mysqli_real_escape_string($link, $_GET['keyword']);
+                    $sql = "SELECT * FROM `msg` WHERE `title` LIKE '%$keyword%'";
+                    $res = mysqli_query($link, $sql);
+                    if (mysqli_num_rows($res) > 0) {
+                        while ($row = mysqli_fetch_assoc($res)) {
+                            echo "<div class='post-card' >";
+                            echo "<div class='post-header'>";
+                            echo "<h2>" . $row['title'] . "</h2>";
+                            echo "<span class='post-author'>發布者: " . $row['acc'] . "</span>";
+                            echo "</div>";
+                            echo "<div class='post-content'>";
+                            echo "<p>" . nl2br($row['text']) . "</p>";
+                            if (!empty($row['img'])) {
+                                echo "<img src='" . $row['img'] . "' alt='貼文圖片' class='post-image'>";
+                            }
+                            echo "</div>";
+                            echo "<div class='post-footer'>";
+                            echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
+                            if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
+                                echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">刪除</button>";
+                                echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">修改</button>";
+                            }
+                            echo "</div>";
+                            echo "</div>";
+                        }
+                    } else {
+                        echo "<p style='text-align: center; color: white;'>🔍 查無資料，請重新輸入關鍵字。</p>";
+                    }
+                }
+                ?>
                 <?php if (isset($_SESSION['acc'])): ?>
                     <?php
                         $avatarDir = "uploads/";
                         $defaultAvatar = "pngtree-default-male-avatar-png-image_2811083.jpg";
-
                         $userAvatar = $avatarDir . $_SESSION['acc'] . ".jpg";
                         $avatarPath = file_exists($userAvatar) ? $userAvatar : $defaultAvatar;
                     ?>
@@ -173,8 +313,29 @@ document.addEventListener("click", function(event) {
                             <a href="upload_avatar.php">更換頭像</a>
                             <a href="profile.php">查看個人資料</a>
                             <a href="collect.php">收藏的貼文</a>
+                            <a href="javascript:void(0);" id="bgMusicBtn">背景音樂</a>
+                            <audio id="bgMusic" loop>
+                                <source src="music.php" type="audio/mpeg">
+                            </audio>
+                            <script>
+                                const bgMusic = document.getElementById("bgMusic");
+                                const bgMusicBtn = document.getElementById("bgMusicBtn");
+
+                                let isPlaying = false;
+
+                                bgMusicBtn.addEventListener("click", () => {
+                                    if (isPlaying) {
+                                        bgMusic.pause();
+                                        bgMusicBtn.textContent = "播放背景音樂";
+                                    } else {
+                                        bgMusic.play();
+                                        bgMusicBtn.textContent = "暫停背景音樂";
+                                    }
+                                    isPlaying = !isPlaying;
+                                });
+                            </script>
                             <a href="logout.php">登出</a>
-                            </div>
+                        </div>
                     </div>
                 <?php else: ?>
                     <button class="login" onclick="location.href='login.php'">登入</button>
@@ -183,33 +344,54 @@ document.addEventListener("click", function(event) {
         </td>
     </tr>
     <tr>
-        <td style="width:100%" style="height:100%">
+        <td colspan="2">
         <?php
-    $sql="SELECT * FROM `msg` WHERE 1";
-    $res=mysqli_query($link,$sql);
-    if(mysqli_num_rows($res)>0){
-        while($row=mysqli_fetch_assoc($res)){
-        echo "<table  border='1' style='width:700px;' align='center'>";
-        echo "<tr style='50px'>";
-        echo "<td style='width: 500px;'>title: " . $row['title'] . "</td>";
-        echo "<td style='200px;'>發布者:".$row['acc']."</td>";
-        echo "</tr>";
-        echo "<tr style='height:300px;'>";
-        echo "<td colspan='2'>text: ".$row['text']."<br><img src='".$row['img']."' width='200' height='200'></td>";  
-        echo "</tr>";
-        echo "<tr style='height:50px'>";
-        echo "<td style='width:500px'>發布時間:".$row['addtime']."更新時間:".$row['uptime']."</td>";
-        if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
-            echo "<td style='width:200px'><input type='button' value='刪除' onclick=\"location.href='dele.php?id=".$row['id']."'\" ></td>";
-        } else {
-            echo "<td></td>";
-        } 
-        echo "</tr>";
-        echo "</table>";
-        }
+$sql_announcement = "SELECT * FROM `announcement` ORDER BY `addtime` DESC";
+$res_announcement = mysqli_query($link, $sql_announcement);
+if (mysqli_num_rows($res_announcement) > 0) {
+    echo "<div class='announcement-section'>";
+    echo "<h2 class='announcement-title'>📢 公告區</h2>";
+    while ($row_announcement = mysqli_fetch_assoc($res_announcement)) {
+        echo "<div class='announcement-card'>";
+        echo "<div class='post-header'>";
+        echo "<h2>" . $row_announcement['title'] . "</h2>";
+        echo "<span class='post-author'>發布者: " . $row_announcement['acc'] . " | " . $row_announcement['addtime'] . "</span>";
+        echo "</div>";
+        echo "<div class='post-content'>";
+        echo "<p>" . nl2br($row_announcement['text']) . "</p>";
+        echo "</div>";
+        echo "</div>";
     }
-    ?>
-    </form>
+    echo "</div>";
+}
+?>
+            <?php
+            $sql = "SELECT * FROM `msg` WHERE 1";
+            $res = mysqli_query($link, $sql);
+            if (mysqli_num_rows($res) > 0) {
+                while ($row = mysqli_fetch_assoc($res)) {
+                    echo "<div class='post-card'>";
+                    echo "<div class='post-header'>";
+                    echo "<h2>" . $row['title'] . "</h2>";
+                    echo "<span class='post-author'>發布者: " . $row['acc'] . "</span>";
+                    echo "</div>";
+                    echo "<div class='post-content'>";
+                    echo "<p>" . nl2br($row['text']) . "</p>";
+                    if (!empty($row['img'])) {
+                        echo "<img src='" . $row['img'] . "' alt='貼文圖片' class='post-image'>";
+                    }
+                    echo "</div>";
+                    echo "<div class='post-footer'>";
+                    echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
+                    if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
+                        echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">刪除</button>";
+                        echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">修改</button>";
+                    }
+                    echo "</div>";
+                    echo "</div>";
+                }
+            }
+            ?>
         </td>
     </tr>
 </table>
