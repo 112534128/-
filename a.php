@@ -112,6 +112,7 @@ $res = mysqli_query($link, $sql);
         <header>
             <div><h1>管理者介面</h1></div>
             <a href="logout.php" >登出</a>
+            <a href="index.php" >首頁</a>
         </header>
         <div class="announcement-form">
             <h2>發布公告</h2>

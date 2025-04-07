@@ -232,10 +232,10 @@
 </head>
 <body>
 <script>
-function toggleDropdown() {
-    var menu = document.getElementById("dropdownMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
+ function toggleDropdown() {
+            var menu = document.getElementById("dropdownMenu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
 
 document.addEventListener("click", function(event) {
     var avatar = document.getElementById("avatar");
@@ -300,16 +300,15 @@ document.addEventListener("click", function(event) {
                 ?>
                 <?php if (isset($_SESSION['acc'])): ?>
                     <?php
-                        $avatarDir = "uploads/";
-                        $defaultAvatar = "pngtree-default-male-avatar-png-image_2811083.jpg";
-                        $userAvatar = $avatarDir . $_SESSION['acc'] . ".jpg";
-                        $avatarPath = file_exists($userAvatar) ? $userAvatar : $defaultAvatar;
+                    $acc = $_SESSION['acc'];
+                    $sql = "SELECT * FROM user WHERE acc = '$acc'";
+                    $res = mysqli_query($link, $sql);
+                    $user = mysqli_fetch_assoc($res);
                     ?>
                     <div class="aaa">
                         <span>您好</span>
-                        <img id="avatar" src="<?php echo $avatarPath; ?>" alt="使用者頭像" class="avatar" onclick="toggleDropdown()">
-                        
-                        <div id="dropdownMenu" class="dropdown-menu">
+                         <img id="avatar" src="<?php echo $user['avatar'] ?: 'pngtree-default-male-avatar-png-image_2811083.jpg'; ?>"
+                           class="avatar" onclick="toggleDropdown()">                        <div id="dropdownMenu" class="dropdown-menu">
                             <a href="upload_avatar.php">更換頭像</a>
                             <a href="profile.php">查看個人資料</a>
                             <a href="collect.php">收藏的貼文</a>
