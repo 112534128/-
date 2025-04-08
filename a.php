@@ -24,8 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['announcement'])) {
 
 $sql = "SELECT * FROM msg ORDER BY addtime DESC";
 $res = mysqli_query($link, $sql);
+$sqll = "SELECT * FROM `announcement` BY addtime DESC";
+$ress = mysqli_query($link, $sqll);
 ?>
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>

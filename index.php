@@ -347,20 +347,34 @@ document.addEventListener("click", function(event) {
         <?php
 $sql_announcement = "SELECT * FROM `announcement` ORDER BY `addtime` DESC";
 $res_announcement = mysqli_query($link, $sql_announcement);
+
 if (mysqli_num_rows($res_announcement) > 0) {
     echo "<div class='announcement-section'>";
     echo "<h2 class='announcement-title'>📢 公告區</h2>";
+
     while ($row_announcement = mysqli_fetch_assoc($res_announcement)) {
         echo "<div class='announcement-card'>";
         echo "<div class='post-header'>";
         echo "<h2>" . $row_announcement['title'] . "</h2>";
         echo "<span class='post-author'>發布者: " . $row_announcement['acc'] . " | " . $row_announcement['addtime'] . "</span>";
         echo "</div>";
+        
         echo "<div class='post-content'>";
         echo "<p>" . nl2br($row_announcement['text']) . "</p>";
         echo "</div>";
-        echo "</div>";
+
+        echo "<div class='post-footer'>";
+        echo "<span>發布時間: " . $row_announcement['addtime'] . " | 更新時間: " . $row_announcement['uptime'] . "</span>";
+
+        if (isset($_SESSION["acc"]) && $_SESSION["acc"] == 'admin') {
+            echo "<button class='delete-btn' onclick=\"location.href='dele_a.php?id=" . $row_announcement['id'] . "'\">刪除</button>";
+            echo "<button class='delete-btn' onclick=\"location.href='updata_a.php?id=" . $row_announcement['id'] . "'\">修改</button>";
+        }        
+        echo "</div>"; 
+
+        echo "</div>"; 
     }
+
     echo "</div>";
 }
 ?>
