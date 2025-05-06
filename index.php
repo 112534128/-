@@ -379,7 +379,7 @@ if (mysqli_num_rows($res_announcement) > 0) {
 }
 ?>
             <?php
-            $sql = "SELECT * FROM `msg` WHERE 1";
+$sql = "SELECT * FROM `msg` WHERE 1 ORDER BY `addtime` DESC";
             $res = mysqli_query($link, $sql);
             if (mysqli_num_rows($res) > 0) {
                 while ($row = mysqli_fetch_assoc($res)) {
