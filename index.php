@@ -400,6 +400,9 @@ $sql = "SELECT * FROM `msg` WHERE 1 ORDER BY `addtime` DESC";
                         echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">刪除</button>";
                         echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">修改</button>";
                     }
+                    if (isset($_SESSION["acc"])) {
+                        echo "<button class='delete-btn' onclick=\"location.href='msg.php?id=" . $row['id'] . "'\">留言</button>";
+                    }
                     echo "</div>";
                     echo "</div>";
                 }

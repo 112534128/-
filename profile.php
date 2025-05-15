@@ -6,6 +6,7 @@
     <title>個人頁面</title>
 </head>
 <body><?php
+include("sidebar.php");
 include "db.php";
 $acc = $_SESSION['acc'];
 $sql = "SELECT * FROM user WHERE acc = '$acc'";

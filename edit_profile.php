@@ -1,5 +1,6 @@
 <?php
 include "db.php";
+include("sidebar.php");
 $acc = $_SESSION['acc'];
 $sql = "SELECT * FROM user WHERE acc = '$acc'";
 $res = mysqli_query($link, $sql);
