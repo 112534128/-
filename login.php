@@ -17,7 +17,7 @@
         }
         .t1 {
             text-decoration: none;
-            text:color:
+            color:blue;
         }
         table {
             margin: auto;

@@ -149,8 +149,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['comment'])) {
             position: absolute;
             top: -28px;
             right: 0;
-            background-color: #e53935;
-            color: #fff;
+            background-color: #ffffff;
+            color: #000;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -160,9 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['comment'])) {
         .delete-btn button:hover .tooltip {
             display: block;
         }
-        .delete-btn button:hover {
-            color: #e53935;
-        }
+        
         .dots {
             font-size: 20px;
             color: #888;

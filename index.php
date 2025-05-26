@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-    <?php include "db.php"; ?>
+    <?php include "db.php"; ?>    
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -172,19 +172,23 @@
         color: #a0a0a0;
         gap: 10px;
     }
+    
     .delete-btn {
-        background-color: #ff5555;
-        border: none;
-        padding: 8px 12px;
-        color: white;
-        font-size: 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .delete-btn:hover {
-        background-color: #ff3333;
-    }
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.delete-btn:hover {
+  background-color: #888;
+  color: white;
+  border-radius: 5px;
+}
+
+    
     .announcement-section {
     max-width: 800px;
     margin: 30px auto;
@@ -252,9 +256,14 @@ document.addEventListener("click", function(event) {
             <header class="header">
                 <div class="header-left">
                     <div onclick="location"><h1>問答論壇</h1></div>
-                    <button class="nav-button" onclick="location.href='category.php'">分類</button>
-                    <button class="nav-button" onclick="location.href='ranking.php'">排行榜</button>
-                    <button class="nav-button" onclick="location.href='vote.php'">投票</button>
+                    <button class="nav-button" onclick="location.href='notifications.php'">公告中心</button>
+                    <button class="nav-button" onclick="location.href='Post Sorting.php'">最新排序</button>
+                    <button class="nav-button" onclick="location.href='Post Sorting.php'">最舊排序</button>
+                    <?php
+                    if (isset($_SESSION['type']) && $_SESSION['type'] == 'a') {
+                        echo "<button class='nav-button' onclick=\"location.href='a.php'\">新增公告</button>";
+                    }
+                    ?>
                     <?php
                     if (isset($_SESSION['acc']) && !empty($_SESSION['acc'])) {
                         echo "<button class='nav-button' onclick=\"location.href='new_proposal.php'\">新增提案</button>";
@@ -267,37 +276,6 @@ document.addEventListener("click", function(event) {
                     <input type="text" name="keyword" placeholder="搜尋" value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
                     <button type="submit">搜尋</button>
                 </form>
-                <?php if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
-                    $keyword = mysqli_real_escape_string($link, $_GET['keyword']);
-                    $sql = "SELECT * FROM `msg` WHERE `title` LIKE '%$keyword%'";
-                    $res = mysqli_query($link, $sql);
-                    if (mysqli_num_rows($res) > 0) {
-                        while ($row = mysqli_fetch_assoc($res)) {
-                            echo "<div class='post-card' >";
-                            echo "<div class='post-header'>";
-                            echo "<h2>" . $row['title'] . "</h2>";
-                            echo "<span class='post-author'>發布者: " . $row['acc'] . "</span>";
-                            echo "</div>";
-                            echo "<div class='post-content'>";
-                            echo "<p>" . nl2br($row['text']) . "</p>";
-                            if (!empty($row['img'])) {
-                                echo "<img src='" . $row['img'] . "' alt='貼文圖片' class='post-image'>";
-                            }
-                            echo "</div>";
-                            echo "<div class='post-footer'>";
-                            echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
-                            if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
-                                echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">刪除</button>";
-                                echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">修改</button>";
-                            }
-                            echo "</div>";
-                            echo "</div>";
-                        }
-                    } else {
-                        echo "<p style='text-align: center; color: white;'>🔍 查無資料，請重新輸入關鍵字。</p>";
-                    }
-                }
-                ?>
                 <?php if (isset($_SESSION['acc'])): ?>
                     <?php
                     $acc = $_SESSION['acc'];
@@ -311,7 +289,7 @@ document.addEventListener("click", function(event) {
                            class="avatar" onclick="toggleDropdown()">                        <div id="dropdownMenu" class="dropdown-menu">
                             <a href="upload_avatar.php">更換頭像</a>
                             <a href="profile.php">查看個人資料</a>
-                            <a href="collect.php">收藏的貼文</a>
+                            <a href="collect.php">你發布的貼文</a>
                             <a href="javascript:void(0);" id="bgMusicBtn">背景音樂</a>
                             <audio id="bgMusic" loop>
                                 <source src="music.php" type="audio/mpeg">
@@ -344,40 +322,38 @@ document.addEventListener("click", function(event) {
     </tr>
     <tr>
         <td colspan="2">
-        <?php
-$sql_announcement = "SELECT * FROM `announcement` ORDER BY `addtime` DESC";
-$res_announcement = mysqli_query($link, $sql_announcement);
-
-if (mysqli_num_rows($res_announcement) > 0) {
-    echo "<div class='announcement-section'>";
-    echo "<h2 class='announcement-title'>📢 公告區</h2>";
-
-    while ($row_announcement = mysqli_fetch_assoc($res_announcement)) {
-        echo "<div class='announcement-card'>";
-        echo "<div class='post-header'>";
-        echo "<h2>" . $row_announcement['title'] . "</h2>";
-        echo "<span class='post-author'>發布者: " . $row_announcement['acc'] . " | " . $row_announcement['addtime'] . "</span>";
-        echo "</div>";
-        
-        echo "<div class='post-content'>";
-        echo "<p>" . nl2br($row_announcement['text']) . "</p>";
-        echo "</div>";
-
-        echo "<div class='post-footer'>";
-        echo "<span>發布時間: " . $row_announcement['addtime'] . " | 更新時間: " . $row_announcement['uptime'] . "</span>";
-
-        if (isset($_SESSION["acc"]) && $_SESSION["acc"] == 'admin') {
-            echo "<button class='delete-btn' onclick=\"location.href='dele_a.php?id=" . $row_announcement['id'] . "'\">刪除</button>";
-            echo "<button class='delete-btn' onclick=\"location.href='updata_a.php?id=" . $row_announcement['id'] . "'\">修改</button>";
-        }        
-        echo "</div>"; 
-
-        echo "</div>"; 
-    }
-
-    echo "</div>";
-}
-?>
+            <?php if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
+                    $keyword = mysqli_real_escape_string($link, $_GET['keyword']);
+                    $sql = "SELECT * FROM `msg` WHERE `title` LIKE '%$keyword%'";
+                    $res = mysqli_query($link, $sql);
+                    if (mysqli_num_rows($res) > 0) {
+                        while ($row = mysqli_fetch_assoc($res)) {
+                            echo "<div class='post-card' >";
+                            echo "<div class='post-header'>";
+                            echo "<h2>" . $row['title'] . "</h2>";
+                            echo "<span class='post-author'>發布者: " . $row['acc'] . "</span>";
+                            echo "</div>";
+                            echo "<div class='post-content'>";
+                            echo "<p>" . nl2br($row['text']) . "</p>";
+                            if (!empty($row['img'])) {
+                                echo "<img src='" . $row['img'] . "' alt='貼文圖片' class='post-image'>";
+                            }
+                            echo "</div>";
+                            echo "<div class='post-footer'>";
+                            echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
+                            if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
+                                echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">🗑</button>";
+                                echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">✏</button>";
+                            }
+                            echo "</div>";
+                            echo "</div>";
+                        }
+                    } else {
+                        echo "<p style='text-align: center; color: white;'>🔍 查無資料，請重新輸入關鍵字。</p>";
+                    }
+                }
+                ?>
+       
             <?php
 $sql = "SELECT * FROM `msg` WHERE 1 ORDER BY `addtime` DESC";
             $res = mysqli_query($link, $sql);
@@ -397,11 +373,11 @@ $sql = "SELECT * FROM `msg` WHERE 1 ORDER BY `addtime` DESC";
                     echo "<div class='post-footer'>";
                     echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
                     if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
-                        echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">刪除</button>";
-                        echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">修改</button>";
+                        echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">🗑</button>";
+                        echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">✏</button>";
                     }
                     if (isset($_SESSION["acc"])) {
-                        echo "<button class='delete-btn' onclick=\"location.href='msg.php?id=" . $row['id'] . "'\">留言</button>";
+                        echo "<button class='delete-btn' onclick=\"location.href='msg.php?id=" . $row['id'] . "'\">🗨</button>";
                     }
                     echo "</div>";
                     echo "</div>";
