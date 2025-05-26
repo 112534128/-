@@ -257,8 +257,8 @@ document.addEventListener("click", function(event) {
                 <div class="header-left">
                     <div onclick="location"><h1>問答論壇</h1></div>
                     <button class="nav-button" onclick="location.href='notifications.php'">公告中心</button>
-                    <button class="nav-button" onclick="location.href='Post Sorting.php'">最新排序</button>
-                    <button class="nav-button" onclick="location.href='Post Sorting.php'">最舊排序</button>
+                    <button class="nav-button" onclick="location.href='index.php?sort=latest'">最新排序</button>
+                    <button class="nav-button" onclick="location.href='index.php?sort=oldest'">最舊排序</button>
                     <?php
                     if (isset($_SESSION['type']) && $_SESSION['type'] == 'a') {
                         echo "<button class='nav-button' onclick=\"location.href='a.php'\">新增公告</button>";
@@ -352,38 +352,47 @@ document.addEventListener("click", function(event) {
                         echo "<p style='text-align: center; color: white;'>🔍 查無資料，請重新輸入關鍵字。</p>";
                     }
                 }
-                ?>
-       
+                ?>    
             <?php
-$sql = "SELECT * FROM `msg` WHERE 1 ORDER BY `addtime` DESC";
+            $sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest';
+
+            $orderBy = "ORDER BY addtime DESC"; 
+
+            if ($sort === 'oldest') {
+                $orderBy = "ORDER BY addtime ASC";
+            }
+
+            $sql = "SELECT * FROM `msg` $orderBy";
             $res = mysqli_query($link, $sql);
+
             if (mysqli_num_rows($res) > 0) {
                 while ($row = mysqli_fetch_assoc($res)) {
+                    $title = htmlspecialchars($row['title']);
+                    $text = nl2br(htmlspecialchars($row['text']));
+                    $acc = htmlspecialchars($row['acc']);
+                    $img = htmlspecialchars($row['img']);
+                    
                     echo "<div class='post-card'>";
                     echo "<div class='post-header'>";
-                    echo "<h2>" . $row['title'] . "</h2>";
-                    echo "<span class='post-author'>發布者: " . $row['acc'] . "</span>";
+                    echo "<h2>{$title}</h2>";
+                    echo "<span class='post-author'>發布者: {$acc}</span>";
                     echo "</div>";
                     echo "<div class='post-content'>";
-                    echo "<p>" . nl2br($row['text']) . "</p>";
-                    if (!empty($row['img'])) {
-                        echo "<img src='" . $row['img'] . "' alt='貼文圖片' class='post-image'>";
+                    echo "<p>{$text}</p>";
+                    if (!empty($img)) {
+                        echo "<img src='{$img}' alt='貼文圖片' class='post-image'>";
                     }
                     echo "</div>";
                     echo "<div class='post-footer'>";
-                    echo "<span>發布時間: " . $row['addtime'] . " | 更新時間: " . $row['uptime'] . "</span>";
-                    if (isset($_SESSION["acc"]) && $_SESSION["acc"] == $row['acc']) {
-                        echo "<button class='delete-btn' onclick=\"location.href='dele.php?id=" . $row['id'] . "'\">🗑</button>";
-                        echo "<button class='delete-btn' onclick=\"location.href='updata.php?id=" . $row['id'] . "'\">✏</button>";
-                    }
-                    if (isset($_SESSION["acc"])) {
-                        echo "<button class='delete-btn' onclick=\"location.href='msg.php?id=" . $row['id'] . "'\">🗨</button>";
-                    }
+                    echo "<span>發布時間: {$row['addtime']} | 更新時間: " . ($row['uptime'] ?: '無') . "</span>";
                     echo "</div>";
                     echo "</div>";
                 }
+            } else {
+                echo "<p style='text-align:center;color:white;'>目前沒有貼文。</p>";
             }
             ?>
+
         </td>
     </tr>
 </table>
